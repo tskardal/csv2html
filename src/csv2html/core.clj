@@ -1,12 +1,7 @@
 (ns csv2html.core
-  (:require [clojure.string :as str])
+  (:require [clojure.string :as str]
+            [clojure-csv.core :refer :all])
   (:gen-class))
-
-(defn parse-csv [csv-str]
-  (let [lines (str/split-lines csv-str)
-        headers (str/split (first lines) #",")
-        values (rest lines)]    
-    {:headers  headers :values (vec (map #(str/split % #",") values))}))
 
 (defn to-html [headers values]
   (let [pairs (map vector headers values)]
@@ -16,8 +11,9 @@
 (defn csv-to-html [in]
   (let [s (slurp in)
         parsed (parse-csv s)
-        headers (:headers parsed)
-        values (:values parsed)]
+        headers (first parsed)
+        values (rest parsed)]
+    
     (->> values
          (map #(to-html headers %))
          flatten)))
